@@ -35,6 +35,7 @@ jobs:
             docker image rm ${DOCKER_HUB_REPO}:${IMAGE_ID}
             # Optionally, force removal if there are containers based on this image
             # docker image rm -f test1:${IMAGE_ID}
+          done
       -
         name: Build and push
         uses: docker/build-push-action@v5
