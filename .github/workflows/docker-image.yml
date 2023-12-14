@@ -21,9 +21,24 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USER_NAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
+      - 
+        name: List and Sort Images
+        run: |
+          IMAGE_LIST=$(docker image ls test1 --format "{{.ID}} {{.Created}}" | sort -k2)
+          IMAGES_TO_DELETE=$(echo "${IMAGE_LIST}" | head -n -${{ env.KEEP_LAST }} | awk '{print $1}')
+          echo "Images to delete: $IMAGES_TO_DELETE"
+
+      - 
+        name: Delete Old Images
+        run: |
+          for IMAGE_ID in $IMAGES_TO_DELETE; do
+            docker image rm ${DOCKER_HUB_REPO}:${IMAGE_ID}
+            # Optionally, force removal if there are containers based on this image
+            # docker image rm -f test1:${IMAGE_ID}
       -
         name: Build and push
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: ${{ secrets.DOCKER_USER_NAME }}/test1:${{ github.run_number }}
+      
